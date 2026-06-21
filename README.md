@@ -33,37 +33,11 @@ Existing tools present significant drawbacks:
 ## 2.4 System Overview / Architecture
 The architecture is 100% client-side (no database, no backend server, no cloud functions). The React application maintains a local database state inside components and utilizes dedicated modular parsing layers.
 
-### Component Design & Data Flow
-```mermaid
-graph TD
-    A[User Interface / Landing Page] -->|Enter Workspace| B[Main Workspace App]
-    B --> C[Navbar Controls]
-    B --> D[Left Sidebar: Upload & List]
-    B --> E[Main Content Panel]
-    B --> F[Right Sidebar: Auditing & Logs]
-    
-    D -->|Drag & Drop File| G[Client-Side Parsers]
-    G -->|Extracts Text| H[Local Indexed Database State]
-    
-    H -->|Ref Scan Engine| I[Citation Map Component]
-    H -->|SHA-256 Hasher| J[Security Audit Log]
-    H -->|DOCX Generator| K[Word Export & Gmail Forwarder]
-
-    subgraph Client-Side Local Execution Environment
-        G
-        H
-        I
-        J
-        K
-    end
-```
-
 * **Navbar:** Houses brand logo, font scaling selector, full graph toggle, and theme switchers.
 * **Left Sidebar:** Coordinates file uploads, list views, card toggle grids, and raw text viewers.
 * **Main Content Area:** Renders document detail text, citation network mapping coordinates, and path traces.
 * **Right Sidebar:** Handles cryptographic checksum generation, integrity status checks, and session logs.
 
----
 
 ## 2.5 Data Structures and Algorithms Used
 
@@ -94,22 +68,9 @@ $$\text{Hash} = \text{Crypto.subtle.digest}("SHA-256", \text{ArrayBuffer})$$
 * **Vite + React:** Setup for fast hot-module replacement and rapid browser asset bundling.
 * **Vanilla CSS Layouts:** Designed using responsive CSS flexbox/grid structures, custom variables for color tokens, backdrop-filters for glassmorphism panels, and grain noise SVG textures.
 * **State Management:** Uses React context and component state arrays to handle loaded files, active viewing selections, integrity logs, and modal triggers.
-
 ---
 
-## 2.7 Time and Space Complexity Analysis
-
-| Process / Operation | Time Complexity | Space Complexity | Complexity Description |
-| :--- | :--- | :--- | :--- |
-| **DOCX parsing** | $\mathcal{O}(L)$ | $\mathcal{O}(L)$ | Linear with character length $L$. |
-| **PDF text extraction** | $\mathcal{O}(P \cdot C)$ | $\mathcal{O}(C)$ | Dependent on page count $P$ and characters per page $C$. |
-| **Citation pathfinding** | $\mathcal{O}(N \cdot M)$ | $\mathcal{O}(V + E)$ | Matches text size $N$ against keyword search count $M$. |
-| **SHA-256 hashing** | $\mathcal{O}(B)$ | $\mathcal{O}(1)$ | Linear to byte size $B$. Uses stream buffer. |
-| **Graph alignment render** | $\mathcal{O}(V^2)$ | $\mathcal{O}(V + E)$ | Calculations to align node nodes and coordinate edge lines. |
-
----
-
-## 2.8 Execution Steps
+## 2.7 Execution Steps
 Follow these steps to run the project locally on your machine.
 
 ### Prerequisites
@@ -137,19 +98,7 @@ The compiled, ready-to-host multi-page files (`index.html`, `landing.html`, CSS,
 
 ---
 
-## 2.9 Sample Inputs and Outputs
-
-### Sample Upload Input (PDF/DOCX/TXT content):
-> "Security policy WT-02 requires all systems to implement proper load balancing. Detailed guidelines on data indexes can be verified inside WT-03 SQL Schema."
-
-### Sample Output Results:
-* **Citation Pathfinder Trail:** `WT-01 Memory Spec` ➔ references ➔ `WT-02 Load Balance` ➔ references ➔ `WT-03 SQL Schema`
-* **SHA-256 Hash Computed:** `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
-* **Log Record Output:** `[11:21:49 PM] USER: Paarshvi Vijoy scanned WT-01 Memory Spec - STATUS: VERIFIED`
-
----
-
-## 2.10 Screenshots
+## 2.8 Screenshots
 Execution steps and onboarding screens can be referenced inside the repository:
 
 1. **Profile Sign In:** `public/screenshots/login_step.png`
@@ -160,14 +109,14 @@ Execution steps and onboarding screens can be referenced inside the repository:
 
 ---
 
-## 2.11 Results and Observations
+## 2.9 Results and Observations
 * **Zero Cloud Exposure:** Network inspections confirmed that file uploads triggered exactly 0 backend API calls. Text rendering and mapping are strictly local.
 * **Immediate Processing:** Text files under 10MB parsed in under **100ms** on ordinary hardware, eliminating typical upload latency bottlenecks.
 * **Intuitive Path Tracing:** New user surveys confirmed that rendering references as a sentence trail reduced compliance path confusion significantly compared to raw directories.
 
 ---
 
-## 2.12 Conclusion
+## 2.10 Conclusion
 WikiTrace Desk provides a highly performant, secure, offline-first application for audit verification. By shifting all parsing, cryptography, and network path tracing directly onto the client side, it guarantees absolute privacy, removes server operational overhead, and yields an intuitive, visually stunning experience for compliance audits.
 
 ---
