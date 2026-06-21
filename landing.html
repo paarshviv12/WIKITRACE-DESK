@@ -55,32 +55,65 @@
       padding-bottom: 5rem;
     }
 
-    /* Header Nav */
+    /* Hero Identity Block */
     header {
-      width: 100%;
-      max-width: 1200px;
-      padding: 1.5rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
+      display: none;
     }
 
-    .brand {
+    .hero-identity {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
-      font-size: 1.5rem;
+      text-align: center;
+      padding-top: 3.5rem;
+      padding-bottom: 0.5rem;
+      gap: 0;
+    }
+
+    .hero-owl-logo {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      opacity: 0.95;
+      animation: owlFloat 5s ease-in-out infinite;
+      drop-shadow: 0 0 30px rgba(255,255,255,0.15);
+    }
+
+    @keyframes owlFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero-wordmark {
+      font-size: 3rem;
       font-weight: 900;
-      letter-spacing: 0.5px;
+      letter-spacing: -0.5px;
       color: #ffffff;
-      text-decoration: none;
+      margin-top: 1.2rem;
+      margin-bottom: 0;
+      line-height: 1;
     }
 
-    .brand span {
+    .hero-wordmark span {
       background: linear-gradient(135deg, var(--cyan), var(--purple));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+    }
+
+    .hero-caption {
+      font-size: 1rem;
+      color: #6e7185;
+      margin-top: 0.8rem;
+      letter-spacing: 0.5px;
+      font-weight: 400;
+    }
+
+    /* Get Started button in hero */
+    .hero-cta-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.8rem;
     }
 
     .nav-btn {
@@ -124,12 +157,12 @@
     .hero-container {
       width: 100%;
       max-width: 1200px;
-      padding: 2rem;
+      padding: 0 2rem 2rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      margin-top: 1rem;
+      margin-top: 0;
     }
 
     .hero-title {
@@ -1327,27 +1360,17 @@
 </head>
 <body>
 
-  <header>
-    <a href="#" class="brand">
-      <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: var(--cyan); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
-        <circle cx="18" cy="5" r="3" />
-        <circle cx="6" cy="12" r="3" />
-        <circle cx="18" cy="19" r="3" />
-        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-      </svg>
-      <span>WikiTrace</span>Desk
-    </a>
-    <a href="https://wikitrace-desk.vercel.app/" class="nav-btn nav-btn-yellow" id="header-enter-btn">
-      Get Started ➔
-    </a>
-  </header>
+  <!-- Hero Identity Block -->
+  <div class="hero-identity">
+    <img src="/logo.png" alt="WikiTrace Owl Logo" class="hero-owl-logo" />
+    <h1 class="hero-wordmark"><span>WikiTrace</span> Desk</h1>
+    <p class="hero-caption">Your offline-first wiki, citation map &amp; security audit engine.</p>
+    <div class="hero-cta-row">
+      <a href="https://wikitrace-desk.vercel.app/" class="nav-btn nav-btn-yellow" id="header-enter-btn">Get Started ➔</a>
+    </div>
+  </div>
 
   <div class="hero-container">
-    <h1 class="hero-title">Your Local Wiki & <span>Connection Map</span> Engine</h1>
-    <p class="hero-subtitle">
-      WikiTrace Desk is an offline-first library platform that structures spec files, audits security logs, and maps reference links interactively.
-    </p>
 
     <!-- Welcome Ribbon (scrolls left -> right) -->
     <div class="ribbon ribbon--welcome ribbon--ltr" aria-label="Welcome message">
