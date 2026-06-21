@@ -288,6 +288,14 @@ export default function App() {
     localStorage.setItem('wikitrace_onboarded', isOnboarded ? 'true' : 'false');
   }, [isOnboarded]);
 
+  const handleSignOut = () => {
+    localStorage.removeItem('wikitrace_username');
+    localStorage.removeItem('wikitrace_onboarded');
+    setUserName('');
+    setIsOnboarded(false);
+    addToast('Successfully signed out.', 'blue');
+  };
+
   // Sync State to URL Search Parameters
   useEffect(() => {
     const params = new URLSearchParams();
@@ -748,6 +756,7 @@ export default function App() {
         onOpenSettings={() => setIsSettingsOpen(true)}
         isSettingsOpen={isSettingsOpen}
         onOpenCitationMap={() => setIsCitationMapOpen(true)}
+        onSignOut={handleSignOut}
       />
 
       {/* 3. Main Content (Left Sidebar + Content Workspace + Collapsible Right Sidebar) */}

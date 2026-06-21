@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Navbar({ searchQuery, setSearchQuery, userName, onOpenSettings, isSettingsOpen, onOpenCitationMap }) {
+export default function Navbar({ searchQuery, setSearchQuery, userName, onOpenSettings, isSettingsOpen, onOpenCitationMap, onSignOut }) {
   return (
     <nav className="navbar" id="app-navbar">
       {/* Left: Enhanced Owl Logo */}
@@ -73,7 +73,7 @@ export default function Navbar({ searchQuery, setSearchQuery, userName, onOpenSe
           </svg>
         </button>
 
-        <div className="profile-box">
+        <div className="profile-box" onClick={onSignOut} title="Click to Sign Out">
           <div className="profile-avatar">
             {userName ? userName.charAt(0).toUpperCase() : 'U'}
           </div>
@@ -88,6 +88,25 @@ export default function Navbar({ searchQuery, setSearchQuery, userName, onOpenSe
           >
             {userName || 'User'}
           </span>
+          <svg 
+            className="signout-icon" 
+            viewBox="0 0 24 24" 
+            style={{ 
+              width: '16px', 
+              height: '16px', 
+              stroke: 'currentColor', 
+              fill: 'none', 
+              strokeWidth: '2.5', 
+              strokeLinecap: 'round', 
+              strokeLinejoin: 'round', 
+              marginLeft: '4px',
+              opacity: '0.7'
+            }}
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
         </div>
       </div>
     </nav>
