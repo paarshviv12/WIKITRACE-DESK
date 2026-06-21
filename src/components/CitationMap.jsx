@@ -10,6 +10,10 @@ export default function CitationMap({ documents, searchQuery, theme = 'light' })
   const containerRef = useRef(null);
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
 
+  const draggedNodeRef = useRef(null);
+  const mousePosRef = useRef({ x: 0, y: 0 });
+  const [physicsEnabled, setPhysicsEnabled] = useState(true);
+
   // Physics Parameters for sidebar graph
   const repulsionStrength = 70;
   const repulsionRadius = 65;
@@ -153,59 +157,71 @@ export default function CitationMap({ documents, searchQuery, theme = 'light' })
       const centerY = height / 2;
 
       // --- 1. Physics Calculations ---
-      // A. Center Gravity
-      nodes.forEach((node) => {
-        node.vx += (centerX - node.x) * gravityStrength;
-        node.vy += (centerY - node.y) * gravityStrength;
-      });
+      if (physicsEnabled) {
+        // A. Center Gravity
+        nodes.forEach((node) => {
+          node.vx += (centerX - node.x) * gravityStrength;
+          node.vy += (centerY - node.y) * gravityStrength;
+        });
 
-      // B. Electrostatic Repulsion
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const nodeA = nodes[i];
-          const nodeB = nodes[j];
-          const dx = nodeB.x - nodeA.x;
-          const dy = nodeB.y - nodeA.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        // B. Electrostatic Repulsion
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const nodeA = nodes[i];
+            const nodeB = nodes[j];
+            const dx = nodeB.x - nodeA.x;
+            const dy = nodeB.y - nodeA.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-          if (dist < repulsionRadius) {
-            const force = ((repulsionRadius - dist) / repulsionRadius) * repulsionStrength * 0.05;
-            const forceX = (dx / dist) * force;
-            const forceY = (dy / dist) * force;
+            if (dist < repulsionRadius) {
+              const force = ((repulsionRadius - dist) / repulsionRadius) * repulsionStrength * 0.05;
+              const forceX = (dx / dist) * force;
+              const forceY = (dy / dist) * force;
 
-            nodeA.vx -= forceX;
-            nodeA.vy -= forceY;
-            nodeB.vx += forceX;
-            nodeB.vy += forceY;
+              nodeA.vx -= forceX;
+              nodeA.vy -= forceY;
+              nodeB.vx += forceX;
+              nodeB.vy += forceY;
+            }
           }
         }
+
+        // C. Spring Attraction along Edges
+        edges.forEach((edge) => {
+          const start = nodes.find(n => n.id === edge.from);
+          const end = nodes.find(n => n.id === edge.to);
+          if (!start || !end) return;
+
+          const dx = end.x - start.x;
+          const dy = end.y - start.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const force = (dist - restLength) * springStrength;
+          const forceX = (dx / dist) * force;
+          const forceY = (dy / dist) * force;
+
+          start.vx += forceX;
+          start.vy += forceY;
+          end.vx -= forceX;
+          end.vy -= forceY;
+        });
       }
-
-      // C. Spring Attraction along Edges
-      edges.forEach((edge) => {
-        const start = nodes.find(n => n.id === edge.from);
-        const end = nodes.find(n => n.id === edge.to);
-        if (!start || !end) return;
-
-        const dx = end.x - start.x;
-        const dy = end.y - start.y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = (dist - restLength) * springStrength;
-        const forceX = (dx / dist) * force;
-        const forceY = (dy / dist) * force;
-
-        start.vx += forceX;
-        start.vy += forceY;
-        end.vx -= forceX;
-        end.vy -= forceY;
-      });
 
       // D. Apply Drag, Friction, and Positions Update
       nodes.forEach((node) => {
-        node.vx *= friction;
-        node.vy *= friction;
-        node.x += node.vx;
-        node.y += node.vy;
+        if (draggedNodeRef.current && draggedNodeRef.current.id === node.id) {
+          node.x = mousePosRef.current.x;
+          node.y = mousePosRef.current.y;
+          node.vx = 0;
+          node.vy = 0;
+        } else if (physicsEnabled) {
+          node.vx *= friction;
+          node.vy *= friction;
+          node.x += node.vx;
+          node.y += node.vy;
+        } else {
+          node.vx = 0;
+          node.vy = 0;
+        }
 
         // Keep inside canvas boundaries
         node.x = Math.max(node.radius + 6, Math.min(width - node.radius - 6, node.x));
@@ -343,7 +359,7 @@ export default function CitationMap({ documents, searchQuery, theme = 'light' })
     };
   }, [shortestPath, hoveredNodeId, documents, searchQuery]);
 
-  // Handle Mouse Hover Check
+  // Handle Mouse Hover Check and Repositioning
   const handleMouseMove = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -351,6 +367,12 @@ export default function CitationMap({ documents, searchQuery, theme = 'light' })
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    mousePosRef.current = { x, y };
+
+    if (draggedNodeRef.current) {
+      return;
+    }
 
     let matchedId = null;
     nodesRef.current.forEach((node) => {
@@ -366,12 +388,26 @@ export default function CitationMap({ documents, searchQuery, theme = 'light' })
     setHoveredNodeId(matchedId);
   };
 
+  const handleMouseDown = (e) => {
+    if (hoveredNodeId) {
+      const matchedNode = nodesRef.current.find(n => n.id === hoveredNodeId);
+      if (matchedNode) {
+        draggedNodeRef.current = matchedNode;
+      }
+    }
+  };
+
+  const handleMouseUp = () => {
+    draggedNodeRef.current = null;
+  };
+
   const handleMouseLeave = () => {
     setHoveredNodeId(null);
+    draggedNodeRef.current = null;
   };
 
   const handleCanvasClick = (e) => {
-    if (hoveredNodeId) {
+    if (hoveredNodeId && !draggedNodeRef.current) {
       if (startNode === hoveredNodeId) {
         // do nothing
       } else {
@@ -431,13 +467,47 @@ export default function CitationMap({ documents, searchQuery, theme = 'light' })
         <div 
           className="canvas-container" 
           ref={containerRef}
-          style={{ height: '220px', cursor: hoveredNodeId ? 'pointer' : 'default', borderRadius: '12px', overflow: 'hidden' }}
+          style={{ height: '220px', cursor: draggedNodeRef.current ? 'grabbing' : (hoveredNodeId ? 'grab' : 'default'), borderRadius: '12px', overflow: 'hidden', position: 'relative' }}
         >
+          {/* Floating Physics Toggle Controls */}
+          <div style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            zIndex: 30,
+            display: 'flex',
+            gap: '6px'
+          }}>
+            <button
+              onClick={() => setPhysicsEnabled(!physicsEnabled)}
+              style={{
+                background: 'rgba(30, 32, 44, 0.85)',
+                border: '1px solid var(--border-blue)',
+                borderRadius: '8px',
+                padding: '4px 8px',
+                fontSize: '0.7rem',
+                fontWeight: '700',
+                color: physicsEnabled ? 'var(--neon-blue)' : '#8c8f9f',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.3)'
+              }}
+              title="Toggle Force-Directed Physics layout"
+            >
+              <span>{physicsEnabled ? '⚛️ Physics ON' : '📌 Physics OFF (Fixed)'}</span>
+            </button>
+          </div>
+
           <canvas
             ref={canvasRef}
             style={{ width: '100%', height: '100%', display: 'block' }}
             onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
             onClick={handleCanvasClick}
           />
         </div>

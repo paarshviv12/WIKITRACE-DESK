@@ -13,6 +13,7 @@ export default function FullGraphView({
   const [selectedHistoryItem, setSelectedHistoryItem] = useState(null);
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
   const [activePanelTab, setActivePanelTab] = useState('linker'); // 'linker' or 'history'
+  const [physicsEnabled, setPhysicsEnabled] = useState(true);
   
   // Linker Sidebar states
   const [selectedEditorDocId, setSelectedEditorDocId] = useState('');
@@ -157,52 +158,54 @@ export default function FullGraphView({
       const centerY = height / 2;
 
       // --- 1. Physics Calculations ---
-      // A. Center Gravity
-      nodes.forEach((node) => {
-        node.vx += (centerX - node.x) * gravityStrength;
-        node.vy += (centerY - node.y) * gravityStrength;
-      });
+      if (physicsEnabled) {
+        // A. Center Gravity
+        nodes.forEach((node) => {
+          node.vx += (centerX - node.x) * gravityStrength;
+          node.vy += (centerY - node.y) * gravityStrength;
+        });
 
-      // B. Electrostatic Repulsion
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const nodeA = nodes[i];
-          const nodeB = nodes[j];
-          const dx = nodeB.x - nodeA.x;
-          const dy = nodeB.y - nodeA.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        // B. Electrostatic Repulsion
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const nodeA = nodes[i];
+            const nodeB = nodes[j];
+            const dx = nodeB.x - nodeA.x;
+            const dy = nodeB.y - nodeA.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
 
-          if (dist < repulsionRadius) {
-            const force = ((repulsionRadius - dist) / repulsionRadius) * repulsionStrength * 0.05;
-            const forceX = (dx / dist) * force;
-            const forceY = (dy / dist) * force;
+            if (dist < repulsionRadius) {
+              const force = ((repulsionRadius - dist) / repulsionRadius) * repulsionStrength * 0.05;
+              const forceX = (dx / dist) * force;
+              const forceY = (dy / dist) * force;
 
-            nodeA.vx -= forceX;
-            nodeA.vy -= forceY;
-            nodeB.vx += forceX;
-            nodeB.vy += forceY;
+              nodeA.vx -= forceX;
+              nodeA.vy -= forceY;
+              nodeB.vx += forceX;
+              nodeB.vy += forceY;
+            }
           }
         }
+
+        // C. Spring Attraction along Edges
+        edges.forEach((edge) => {
+          const start = nodes.find(n => n.id === edge.from);
+          const end = nodes.find(n => n.id === edge.to);
+          if (!start || !end) return;
+
+          const dx = end.x - start.x;
+          const dy = end.y - start.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const force = (dist - restLength) * springStrength;
+          const forceX = (dx / dist) * force;
+          const forceY = (dy / dist) * force;
+
+          start.vx += forceX;
+          start.vy += forceY;
+          end.vx -= forceX;
+          end.vy -= forceY;
+        });
       }
-
-      // C. Spring Attraction along Edges
-      edges.forEach((edge) => {
-        const start = nodes.find(n => n.id === edge.from);
-        const end = nodes.find(n => n.id === edge.to);
-        if (!start || !end) return;
-
-        const dx = end.x - start.x;
-        const dy = end.y - start.y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = (dist - restLength) * springStrength;
-        const forceX = (dx / dist) * force;
-        const forceY = (dy / dist) * force;
-
-        start.vx += forceX;
-        start.vy += forceY;
-        end.vx -= forceX;
-        end.vy -= forceY;
-      });
 
       // D. Apply Drag, Friction, and Update Positions
       nodes.forEach((node) => {
@@ -211,7 +214,7 @@ export default function FullGraphView({
           node.y = mousePosRef.current.y;
           node.vx = 0;
           node.vy = 0;
-        } else {
+        } else if (physicsEnabled) {
           node.vx *= friction;
           node.vy *= friction;
           node.x += node.vx;
@@ -219,6 +222,9 @@ export default function FullGraphView({
 
           node.x = Math.max(node.radius + 10, Math.min(width - node.radius - 10, node.x));
           node.y = Math.max(node.radius + 10, Math.min(height - node.radius - 10, node.y));
+        } else {
+          node.vx = 0;
+          node.vy = 0;
         }
       });
 
@@ -447,8 +453,40 @@ export default function FullGraphView({
         <div 
           className="canvas-container" 
           ref={containerRef}
-          style={{ height: '520px', cursor: draggedNodeRef.current ? 'grabbing' : (hoveredNodeId ? 'grab' : 'default') }}
+          style={{ height: '520px', cursor: draggedNodeRef.current ? 'grabbing' : (hoveredNodeId ? 'grab' : 'default'), position: 'relative' }}
         >
+          {/* Floating Physics Toggle Controls */}
+          <div style={{
+            position: 'absolute',
+            top: '12px',
+            right: '12px',
+            zIndex: 30,
+            display: 'flex',
+            gap: '8px'
+          }}>
+            <button
+              onClick={() => setPhysicsEnabled(!physicsEnabled)}
+              style={{
+                background: 'rgba(30, 32, 44, 0.85)',
+                border: '1px solid var(--border-blue)',
+                borderRadius: '10px',
+                padding: '6px 12px',
+                fontSize: '0.8rem',
+                fontWeight: '700',
+                color: physicsEnabled ? 'var(--neon-blue)' : '#8c8f9f',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+              }}
+              title="Toggle Force-Directed Physics layout"
+            >
+              <span>{physicsEnabled ? '⚛️ Physics ON' : '📌 Physics OFF (Fixed)'}</span>
+            </button>
+          </div>
+
           <canvas
             ref={canvasRef}
             style={{ width: '100%', height: '100%', display: 'block' }}
