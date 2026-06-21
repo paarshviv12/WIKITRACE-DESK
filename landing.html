@@ -1120,6 +1120,141 @@
       font-size: 0.85rem;
       color: #5c5f73;
     }
+
+    /* Collapsible QR Drawer styles */
+    .qr-drawer-container {
+      margin-top: 4rem;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .qr-toggle-btn {
+      position: relative;
+      background: var(--panel-bg);
+      border: 1.5px solid var(--border-color);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .qr-toggle-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: 10;
+      border-radius: inherit;
+    }
+
+    .qr-toggle-btn:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 8px 30px var(--cyan-glow);
+      transform: translateY(-2px);
+    }
+
+    .qr-toggle-btn .qr-btn-icon {
+      stroke: var(--cyan);
+    }
+
+    .qr-drawer-content {
+      width: 100%;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      justify-content: center;
+      margin-top: 0;
+    }
+
+    .qr-drawer-content.expanded {
+      max-height: 280px;
+      margin-top: 1rem;
+    }
+
+    .qr-card {
+      background: rgba(22, 24, 35, 0.85);
+      border: 1.5px solid var(--border-color);
+      border-radius: 20px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      width: 100%;
+      position: relative;
+    }
+
+    .qr-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: 10;
+      border-radius: inherit;
+    }
+
+    .qr-image-wrapper {
+      background: white;
+      padding: 10px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 130px;
+      height: 130px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+
+    .qr-image-wrapper img {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .qr-text-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .qr-text-info h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .qr-text-info p {
+      font-size: 0.82rem;
+      color: #8c8f9f;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 500px) {
+      .qr-card {
+        flex-direction: column;
+        text-align: center;
+      }
+      .qr-drawer-content.expanded {
+        max-height: 400px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1469,6 +1604,34 @@
     </div>
   </div>
 
+  <!-- Collapsible QR Code Drawer -->
+  <div class="qr-drawer-container">
+    <button class="qr-toggle-btn" id="qr-toggle-btn" onclick="toggleQRDrawer()">
+      <svg class="qr-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+        <rect x="7" y="7" width="3" height="3"></rect>
+        <rect x="14" y="7" width="3" height="3"></rect>
+        <rect x="7" y="14" width="3" height="3"></rect>
+        <rect x="14" y="14" width="3" height="3"></rect>
+      </svg>
+      <span style="color: inherit; font-size: inherit; font-weight: inherit;">Show QR Code to Open Workspace</span>
+      <svg class="qr-arrow-icon" id="qr-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; transition: transform 0.3s;">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+    <div class="qr-drawer-content" id="qr-drawer-content">
+      <div class="qr-card">
+        <div class="qr-image-wrapper">
+          <img id="qr-code-img" src="" alt="Workspace QR Code" />
+        </div>
+        <div class="qr-text-info">
+          <h4>Scan to Open Workspace</h4>
+          <p>Scan this QR code with your mobile device to open the WikiTrace Desk workspace directly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <footer>
     © 2026 WikiTrace Desk. Local-First Workspace Library.
   </footer>
@@ -1561,6 +1724,30 @@
       }
       lineIdx++;
     }, 2800);
+
+    // Toggle QR Drawer
+    function toggleQRDrawer() {
+      const drawer = document.getElementById('qr-drawer-content');
+      const arrow = document.getElementById('qr-arrow-icon');
+      const btnText = document.querySelector('#qr-toggle-btn span');
+      const qrImg = document.getElementById('qr-code-img');
+
+      const isExpanded = drawer.classList.toggle('expanded');
+      
+      if (isExpanded) {
+        arrow.style.transform = 'rotate(180deg)';
+        btnText.textContent = 'Hide QR Code';
+        
+        // Dynamically request QR code pointing to the main project page
+        if (!qrImg.src) {
+          const workspaceUrl = window.location.origin + "/index.html";
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(workspaceUrl)}&color=0b0c10&bgcolor=ffffff`;
+        }
+      } else {
+        arrow.style.transform = 'rotate(0deg)';
+        btnText.textContent = 'Show QR Code to Open Workspace';
+      }
+    }
   </script>
 </body>
 </html>
