@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WikiTrace Desk - Interactive Workspace</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      /* Colors */
+      --cyan: #0099cc;
+      --cyan-glow: rgba(0, 153, 204, 0.4);
+      --purple: #7c4dff;
+      --purple-glow: rgba(124, 77, 255, 0.4);
+      --dark-bg: #0b0c10;
+      --panel-bg: rgba(22, 24, 35, 0.8);
+      --border-color: rgba(255, 255, 255, 0.1);
+      
+      /* Dynamic LED strip colors */
+      --led-color: #0099cc;
+      --led-glow: rgba(0, 153, 204, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--dark-bg);
+      background-image: 
+        linear-gradient(rgba(11, 12, 16, 0.8), rgba(11, 12, 16, 0.9)),
+        url('/dark_backdrop.png');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: #ffffff;
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 5rem;
+    }
+
+    /* Header Nav */
+    header {
+      width: 100%;
+      max-width: 1200px;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      text-decoration: none;
+    }
+
+    .brand span {
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .nav-btn:hover {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan-glow);
+      transform: translateY(-2px);
+    }
+
+    /* Main Container */
+    .hero-container {
+      width: 100%;
+      max-width: 1200px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+      max-width: 800px;
+    }
+
+    .hero-title span {
+      color: var(--cyan);
+      text-shadow: 0 0 20px var(--cyan-glow);
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: #8c8f9f;
+      max-width: 600px;
+      line-height: 1.5;
+      margin-bottom: 2.5rem;
+    }
+
+    /* THE CRAZY DESK SETUP */
+    .desk-setup-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: 520px;
+      background: rgba(30, 32, 44, 0.3);
+      border: 1.5px solid var(--border-color);
+      border-radius: 24px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      margin-bottom: 4rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 20px;
+      overflow: hidden;
+    }
+
+    /* Ambient Pulsing LED Backlight */
+    .led-backlight {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 420px;
+      background: radial-gradient(circle at 50% 60%, var(--led-glow) 0px, transparent 65%);
+      transition: background 0.5s ease;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Desk Surface */
+    .desk-surface {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 110px;
+      background: linear-gradient(to bottom, #14151a 0%, #0d0e12 100%);
+      border-top: 4px solid #23252f;
+      z-index: 5;
+    }
+
+    /* LED Underglow strip */
+    .led-strip {
+      position: absolute;
+      top: -4px;
+      left: 5%;
+      width: 90%;
+      height: 4px;
+      background-color: var(--led-color);
+      box-shadow: 0 0 15px var(--led-color), 0 0 30px var(--led-color);
+      transition: all 0.5s ease;
+    }
+
+    /* Desk Pad */
+    .desk-pad {
+      position: absolute;
+      bottom: 12px;
+      left: 15%;
+      width: 70%;
+      height: 80px;
+      background: #1c1e26;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 2px solid var(--led-color);
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5), inset 0 0 5px rgba(255,255,255,0.02);
+      z-index: 6;
+      transition: border-bottom-color 0.5s ease;
+    }
+
+    /* Main Ultrawide Monitor */
+    .monitor-main {
+      position: absolute;
+      bottom: 130px;
+      left: 20%;
+      width: 60%;
+      height: 250px;
+      background: #16171d;
+      border: 6px solid #2a2c35;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      z-index: 10;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, opacity 0.5s ease;
+    }
+
+    .monitor-main.power-off {
+      opacity: 0.15;
+      transform: scale(0.98);
+    }
+
+    .monitor-main.power-off .screen-content {
+      display: none;
+    }
+
+    /* Main monitor stand */
+    .monitor-stand {
+      position: absolute;
+      bottom: 85px;
+      left: 47%;
+      width: 6%;
+      height: 50px;
+      background: #2a2c35;
+      border-radius: 4px;
+      z-index: 9;
+    }
+
+    .monitor-stand-base {
+      position: absolute;
+      bottom: 80px;
+      left: 42%;
+      width: 16%;
+      height: 8px;
+      background: #1c1e24;
+      border-radius: 4px;
+      z-index: 9;
+    }
+
+    /* Screen mock-ups */
+    .screen-header {
+      height: 24px;
+      background: #20222a;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+    }
+
+    .screen-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff5f56;
+    }
+    .screen-dot:nth-child(2) { background: #ffbd2e; }
+    .screen-dot:nth-child(3) { background: #27c93f; }
+
+    .screen-title {
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: #5c5f73;
+      margin-left: 10px;
+    }
+
+    .screen-content {
+      flex: 1;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 10px;
+      background-color: #0b0c10;
+      background-image: 
+        radial-gradient(at 10% 20%, rgba(0, 153, 204, 0.04) 0px, transparent 50%),
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+    }
+
+    /* UI elements inside monitor */
+    .ui-left {
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 6px;
+      background: rgba(30,32,44,0.3);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ui-item {
+      height: 14px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      color: #8c8f9f;
+    }
+
+    .ui-item::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--cyan);
+      margin-right: 6px;
+    }
+
+    .ui-item.active {
+      background: rgba(0, 153, 204, 0.15);
+      border: 1.5px solid var(--cyan);
+      color: white;
+    }
+
+    .ui-content-box {
+      flex: 1;
+      background: rgba(0,0,0,0.2);
+      border-radius: 4px;
+      border: 1.5px dashed rgba(255,255,255,0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      color: #5c5f73;
+    }
+
+    .ui-content-box svg {
+      width: 14px;
+      height: 14px;
+      stroke: var(--cyan);
+      margin-bottom: 4px;
+      animation: pulse 2s infinite;
+    }
+
+    /* Citation Map Node layout on screen */
+    .ui-right {
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 6px;
+      background: rgba(30,32,44,0.6);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ui-node {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #16171d;
+      border: 1.5px solid var(--cyan);
+      box-shadow: 0 0 6px var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.45rem;
+      font-weight: 700;
+      color: white;
+      z-index: 2;
+    }
+
+    .ui-node:nth-child(2) { top: 25px; left: 35px; border-color: var(--purple); box-shadow: 0 0 6px var(--purple); }
+    .ui-node:nth-child(3) { bottom: 30px; left: 55px; }
+    .ui-node:nth-child(4) { top: 50px; right: 40px; }
+    .ui-node:nth-child(5) { bottom: 25px; right: 25px; border-color: var(--purple); box-shadow: 0 0 6px var(--purple); }
+
+    .ui-edge-svg {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Portrait Secondary monitor */
+    .monitor-side {
+      position: absolute;
+      bottom: 110px;
+      right: 5%;
+      width: 11%;
+      height: 250px;
+      background: #16171d;
+      border: 5px solid #2a2c35;
+      border-radius: 12px;
+      box-shadow: -10px 15px 30px rgba(0,0,0,0.5);
+      z-index: 12;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .screen-terminal {
+      flex: 1;
+      background: #06070a;
+      padding: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.5rem;
+      color: #34c759;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      overflow: hidden;
+    }
+
+    /* Pulsing speakers */
+    .speaker {
+      position: absolute;
+      bottom: 110px;
+      width: 35px;
+      height: 70px;
+      background: #1e2029;
+      border: 2px solid #2a2c35;
+      border-radius: 4px;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      padding: 6px 0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+    
+    .speaker-left { left: 14%; }
+    .speaker-right { left: 81%; }
+
+    .speaker-cone {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #0b0c10;
+      border: 2px solid #3d4050;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .speaker-cone::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #1c1e24;
+      top: 4px;
+      left: 4px;
+    }
+
+    .speaker-cone.pulse {
+      animation: conePulse 1.5s infinite ease-in-out;
+    }
+
+    /* Mechanical Keyboard */
+    .keyboard {
+      position: absolute;
+      bottom: 22px;
+      left: 28%;
+      width: 44%;
+      height: 38px;
+      background: #252833;
+      border-radius: 6px;
+      border: 1.5px solid #14151a;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+      z-index: 15;
+      display: grid;
+      grid-template-columns: repeat(15, 1fr);
+      gap: 1.5px;
+      padding: 3px;
+    }
+
+    .key {
+      background: #14151a;
+      border-radius: 2px;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .key::after {
+      content: "";
+      position: absolute;
+      bottom: 0px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: var(--led-color);
+      box-shadow: 0 0 5px var(--led-color);
+      opacity: 0.6;
+      transition: all 0.2s;
+    }
+
+    .key:hover::after {
+      opacity: 1;
+      height: 2px;
+      box-shadow: 0 0 8px var(--led-color);
+    }
+
+    /* Gaming mouse */
+    .mouse {
+      position: absolute;
+      bottom: 30px;
+      left: 76%;
+      width: 18px;
+      height: 28px;
+      background: #252833;
+      border-radius: 9px;
+      border: 1px solid #14151a;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+      z-index: 15;
+    }
+
+    .mouse-wheel {
+      position: absolute;
+      width: 2px;
+      height: 6px;
+      background: var(--led-color);
+      left: 8px;
+      top: 5px;
+      border-radius: 1px;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* Steaming Coffee Cup */
+    .coffee-mug {
+      position: absolute;
+      bottom: 110px;
+      left: 8%;
+      width: 24px;
+      height: 26px;
+      background: #e0f2fe;
+      border-radius: 0 0 8px 8px;
+      z-index: 12;
+      box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+    }
+
+    .coffee-handle {
+      position: absolute;
+      width: 8px;
+      height: 14px;
+      border: 2px solid #e0f2fe;
+      border-left: none;
+      border-radius: 0 6px 6px 0;
+      left: 24px;
+      top: 4px;
+    }
+
+    .steam-container {
+      position: absolute;
+      top: -15px;
+      left: 4px;
+      width: 16px;
+      height: 15px;
+      display: flex;
+      justify-content: space-around;
+    }
+
+    .steam-line {
+      width: 2px;
+      height: 12px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 1px;
+      animation: steam 2s infinite linear;
+    }
+
+    .steam-line:nth-child(2) { animation-delay: 0.6s; }
+    .steam-line:nth-child(3) { animation-delay: 1.2s; }
+
+    /* Desk Plant */
+    .succulent {
+      position: absolute;
+      bottom: 110px;
+      right: 18%;
+      width: 32px;
+      height: 28px;
+      z-index: 12;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .pot {
+      width: 22px;
+      height: 16px;
+      background: #7c5d4d;
+      border-radius: 0 0 6px 6px;
+      border-top: 2px solid #8e6c5c;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 8px;
+      height: 12px;
+      background: #27c93f;
+      border-radius: 50% 50% 0 0;
+      top: -4px;
+    }
+    .leaf:nth-child(2) { transform: rotate(-30deg); left: 6px; top: -2px; }
+    .leaf:nth-child(3) { transform: rotate(30deg); right: 6px; top: -2px; }
+
+    /* Desk Controller Panel */
+    .desk-controller {
+      position: absolute;
+      bottom: 16px;
+      left: 4%;
+      width: 8%;
+      height: 38px;
+      background: #1e2029;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    }
+
+    .control-btn {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      box-shadow: inset 0 2px 2px rgba(255,255,255,0.1);
+    }
+
+    .control-btn.color-cyan { background: #0099cc; }
+    .control-btn.color-purple { background: #7c4dff; }
+    .control-btn.color-green { background: #27c93f; }
+    .control-btn.power { background: #ff5f56; }
+
+    /* Keyframes */
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes conePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes steam {
+      0% { transform: translateY(0) scaleX(1); opacity: 0; }
+      50% { transform: translateY(-6px) scaleX(1.3); opacity: 0.5; }
+      100% { transform: translateY(-12px) scaleX(0.8); opacity: 0; }
+    }
+
+    /* Program Features Grid */
+    .features-section {
+      width: 100%;
+      max-width: 1200px;
+      padding: 0 2rem;
+      margin-top: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .section-headline {
+      font-size: 2.2rem;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .feature-card {
+      background: var(--panel-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem 1.8rem;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
+      opacity: 1.0;
+      pointer-events: none;
+      z-index: 10;
+      border-radius: inherit;
+    }
+
+    .feature-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 153, 204, 0.08);
+    }
+
+    .feature-icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(0, 153, 204, 0.1);
+      border: 1px solid var(--cyan);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+      margin-bottom: 6px;
+    }
+
+    .feature-icon-wrapper svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+    }
+
+    .feature-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .feature-description {
+      font-size: 0.92rem;
+      color: #8c8f9f;
+      line-height: 1.5;
+    }
+
+    /* Walkthrough Timeline styles */
+    .timeline-container {
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 5rem;
+      padding: 0 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+      position: relative;
+    }
+
+    .timeline-header-block {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .timeline-header-block h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .timeline-header-block p {
+      color: #8c8f9f;
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+    }
+
+    /* Central vertical timeline track line for desktop */
+    .timeline-track {
+      position: absolute;
+      top: 150px;
+      bottom: 50px;
+      left: 50%;
+      width: 4px;
+      background: linear-gradient(to bottom, var(--cyan), var(--purple), var(--cyan));
+      transform: translateX(-50%);
+      opacity: 0.2;
+      z-index: 1;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline-item:nth-child(even) {
+      direction: rtl;
+    }
+
+    .timeline-item:nth-child(even) .timeline-content,
+    .timeline-item:nth-child(even) .timeline-media {
+      direction: ltr; /* Reset text direction */
+    }
+
+    /* Timeline center node indicator */
+    .timeline-node {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #14151a;
+      border: 3px solid var(--cyan);
+      box-shadow: 0 0 15px var(--cyan-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: white;
+      font-size: 1.1rem;
+      z-index: 3;
+      transition: all 0.3s ease;
+    }
+
+    .timeline-item:nth-child(even) .timeline-node {
+      border-color: var(--purple);
+      box-shadow: 0 0 15px var(--purple-glow);
+    }
+
+    .timeline-item:hover .timeline-node {
+      transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    /* Content glass card */
+    .timeline-content {
+      background: rgba(22, 24, 35, 0.75);
+      border: 1.5px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .timeline-content::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
+      opacity: 0.8;
+      pointer-events: none;
+      z-index: 10;
+      border-radius: inherit;
+    }
+
+    .timeline-item:hover .timeline-content {
+      border-color: var(--cyan);
+      box-shadow: 0 15px 45px rgba(0, 153, 204, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .timeline-item:nth-child(even):hover .timeline-content {
+      border-color: var(--purple);
+      box-shadow: 0 15px 45px rgba(124, 77, 255, 0.15);
+      transform: translateY(-5px);
+    }
+
+    .timeline-step-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: rgba(0, 153, 204, 0.1);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .timeline-item:nth-child(even) .timeline-step-badge {
+      background: rgba(124, 77, 255, 0.1);
+      border-color: var(--purple);
+      color: var(--purple);
+    }
+
+    .timeline-item-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .timeline-item-desc {
+      color: #8c8f9f;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    /* Media/Screenshot Card */
+    .timeline-media {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .screenshot-frame {
+      width: 100%;
+      max-width: 480px;
+      border-radius: 16px;
+      border: 4px solid #2a2c35;
+      background: #0b0c10;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 16 / 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .screenshot-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .screenshot-frame:hover {
+      transform: scale(1.03) translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0, 153, 204, 0.25);
+      border-color: var(--cyan);
+    }
+
+    .timeline-item:nth-child(even) .screenshot-frame:hover {
+      box-shadow: 0 25px 50px rgba(124, 77, 255, 0.25);
+      border-color: var(--purple);
+    }
+
+    .screenshot-frame:hover img {
+      transform: scale(1.05);
+    }
+
+    /* Device UI header styling on screenshot */
+    .screenshot-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 24px;
+      background: #20222a;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    /* Responsive style */
+    @media (max-width: 850px) {
+      .timeline-track {
+        left: 20px;
+      }
+      .timeline-item {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding-left: 50px;
+      }
+      .timeline-item:nth-child(even) {
+        direction: ltr;
+      }
+      .timeline-node {
+        left: 20px;
+      }
+      .screenshot-frame {
+        max-width: 100%;
+      }
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 6rem;
+      font-size: 0.85rem;
+      color: #5c5f73;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="#" class="brand">
+      <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; stroke: var(--cyan); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;">
+        <circle cx="18" cy="5" r="3" />
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      </svg>
+      <span>WikiTrace</span>Desk
+    </a>
+    <a href="/index.html" class="nav-btn" id="header-enter-btn">
+      Enter Workspace ➔
+    </a>
+  </header>
+
+  <div class="hero-container">
+    <h1 class="hero-title">Your Local Wiki & <span>Connection Map</span> Engine</h1>
+    <p class="hero-subtitle">
+      WikiTrace Desk is an offline-first library platform that structures spec files, audits security logs, and maps reference links interactively.
+    </p>
+
+    <!-- CRAZY DESK SETUP VIEWPORT -->
+    <div class="desk-setup-wrapper" id="workspace-viewport">
+      
+      <!-- Back LED Strip Glow -->
+      <div class="led-backlight" id="desk-glow"></div>
+
+      <!-- Desk Surface Layer -->
+      <div class="desk-surface">
+        <div class="led-strip" id="led-physical-strip"></div>
+        <div class="desk-pad" id="desk-pad-glow"></div>
+      </div>
+
+      <!-- Main monitor stand -->
+      <div class="monitor-stand"></div>
+      <div class="monitor-stand-base"></div>
+
+      <!-- Main monitor screen -->
+      <div class="monitor-main" id="main-monitor">
+        <div class="screen-header">
+          <div class="screen-dot"></div>
+          <div class="screen-dot"></div>
+          <div class="screen-dot"></div>
+          <span class="screen-title">wikitrace-desk / connections</span>
+        </div>
+        <div class="screen-content">
+          <div class="ui-left">
+            <div class="ui-item active" style="font-size: 0.55rem; font-weight: 600; color: white;">
+              WT-01 Memory Spec
+            </div>
+            <div class="ui-item" style="font-size: 0.55rem; color: #8c8f9f;">
+              WT-02 Load Balance
+            </div>
+            <div class="ui-item" style="font-size: 0.55rem; color: #8c8f9f;">
+              WT-03 SQL Schema
+            </div>
+            <div class="ui-content-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              <span>Uploading File...</span>
+            </div>
+          </div>
+          <div class="ui-right">
+            <!-- Edge Lines -->
+            <svg class="ui-edge-svg">
+              <line x1="25%" y1="50%" x2="55%" y2="25%" stroke="rgba(0,153,204,0.4)" stroke-width="1.5" />
+              <line x1="55%" y1="25%" x2="70%" y2="70%" stroke="rgba(124,77,255,0.4)" stroke-width="1.5" />
+              <line x1="25%" y1="50%" x2="45%" y2="75%" stroke="rgba(0,153,204,0.4)" stroke-width="1.5" />
+              <line x1="45%" y1="75%" x2="80%" y2="75%" stroke="rgba(0,153,204,0.4)" stroke-width="1.5" stroke-dasharray="3" />
+            </svg>
+            <div class="ui-node" style="top: 50%; left: 25%;">01</div>
+            <div class="ui-node" style="top: 25%; left: 35%;">02</div>
+            <div class="ui-node" style="bottom: 30%; left: 55%;">03</div>
+            <div class="ui-node" style="top: 50%; right: 40%;">04</div>
+            <div class="ui-node" style="bottom: 25%; right: 25%;">05</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondary Portrait monitor screen -->
+      <div class="monitor-side">
+        <div class="screen-header">
+          <div class="screen-dot"></div>
+          <span class="screen-title" style="font-size: 0.45rem;">sys-logs.sh</span>
+        </div>
+        <div class="screen-terminal" id="terminal-content">
+          <div>$ sh run_indexer.sh</div>
+          <div style="color: #0099cc;">> Scanning workspace...</div>
+          <div>> Found 5 documents.</div>
+          <div>> Building reference connections...</div>
+          <div style="color: #7c4dff;">[SUCCESS] Map built.</div>
+          <div>$ ▒</div>
+        </div>
+      </div>
+
+      <!-- Pulsing Speakers -->
+      <div class="speaker speaker-left">
+        <div class="speaker-cone"></div>
+        <div class="speaker-cone pulse"></div>
+      </div>
+      <div class="speaker speaker-right">
+        <div class="speaker-cone"></div>
+        <div class="speaker-cone pulse"></div>
+      </div>
+
+      <!-- Keyboard -->
+      <div class="keyboard" id="keyboard-mesh">
+        <!-- Generated keys -->
+      </div>
+
+      <!-- Gaming Mouse -->
+      <div class="mouse">
+        <div class="mouse-wheel"></div>
+      </div>
+
+      <!-- Coffee Mug -->
+      <div class="coffee-mug">
+        <div class="coffee-handle"></div>
+        <div class="steam-container">
+          <div class="steam-line"></div>
+          <div class="steam-line"></div>
+          <div class="steam-line"></div>
+        </div>
+      </div>
+
+      <!-- Desk Succulent Plant -->
+      <div class="succulent">
+        <div class="pot"></div>
+        <div class="pot" style="height: 12px; margin-top: -12px;">
+          <div class="leaf"></div>
+          <div class="leaf"></div>
+          <div class="leaf"></div>
+        </div>
+      </div>
+
+      <!-- Desk Controller Panel -->
+      <div class="desk-controller">
+        <button class="control-btn color-cyan" onclick="setLEDColor('#0099cc')" title="LED Cyan"></button>
+        <button class="control-btn color-purple" onclick="setLEDColor('#7c4dff')" title="LED Purple"></button>
+        <button class="control-btn color-green" onclick="setLEDColor('#27c93f')" title="LED Green"></button>
+        <button class="control-btn power" onclick="toggleScreen()" title="Power Monitor"></button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="features-section">
+    <h2 class="section-headline">Program Highlights</h2>
+    <div class="features-grid">
+      
+      <!-- Feature 1: Universal Uploader -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+        </div>
+        <div class="feature-title">Universal Text Upload</div>
+        <div class="feature-description">
+          Drag and drop spec files (PDF, Word .docx, txt, md, json) to extract and index their contents in full client-side. No backend required.
+        </div>
+      </div>
+
+      <!-- Feature 2: Connection Pathfinder -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24">
+            <circle cx="18" cy="5" r="3" />
+            <circle cx="6" cy="12" r="3" />
+            <circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+        </div>
+        <div class="feature-title">Human-Readable Connections</div>
+        <div class="feature-description">
+          Find connection trails between files instantly. View links like a readable sentence trail mapping exactly how guidelines mention each other.
+        </div>
+      </div>
+
+      <!-- Feature 3: File Auditing -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        </div>
+        <div class="feature-title">Integrity Auditing</div>
+        <div class="feature-description">
+          Perform a manual checksum integrity scan on files to audit security parameters, file hashes, and active citations on the spot.
+        </div>
+      </div>
+
+      <!-- Feature 4: DOCX Export -->
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
+          </svg>
+        </div>
+        <div class="feature-title">Word & Gmail Forwarding</div>
+        <div class="feature-description">
+          Pack and download spec files into true Microsoft Word `.docx` documents programmatically and open a prefilled Gmail compose window.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Setup Walkthrough Timeline Section -->
+  <div class="timeline-container">
+    <div class="timeline-header-block">
+      <h2>Step-by-Step Onboarding Guide</h2>
+      <p>Follow these simple steps to configure your WikiTrace Desk offline workspace and start mapping your reference guidelines.</p>
+    </div>
+    
+    <div class="timeline-track"></div>
+
+    <!-- Step 1: Profile Sign In -->
+    <div class="timeline-item">
+      <div class="timeline-node">1</div>
+      <div class="timeline-content">
+        <div class="timeline-step-badge">Step 01</div>
+        <h3 class="timeline-item-title">Profile Sign In</h3>
+        <p class="timeline-item-desc">
+          Establish your workspace identity upon launch. Enter your username to personalize your offline profile. This locks in your developer signature, which is automatically stamped on security audits, verification logs, and exported document summaries.
+        </p>
+      </div>
+      <div class="timeline-media">
+        <div class="screenshot-frame">
+          <div class="screenshot-header">
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <span class="screen-title" style="font-size: 0.6rem; color: #5c5f73;">Sign In Profile</span>
+          </div>
+          <img src="/screenshots/login_step.png" alt="Profile Sign In screenshot" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Customize Font Size -->
+    <div class="timeline-item">
+      <div class="timeline-node">2</div>
+      <div class="timeline-content">
+        <div class="timeline-step-badge">Step 02</div>
+        <h3 class="timeline-item-title">Tailor Typography Scale</h3>
+        <p class="timeline-item-desc">
+          Ensure comfortable scan-readability for massive reference docs. Use the responsive typography overlay to adjust character sizing on the fly. This system-wide setting ensures complex guidelines, logs, and trace tables fit perfectly to your display.
+        </p>
+      </div>
+      <div class="timeline-media">
+        <div class="screenshot-frame">
+          <div class="screenshot-header">
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <span class="screen-title" style="font-size: 0.6rem; color: #5c5f73;">Font Settings</span>
+          </div>
+          <img src="/screenshots/font_step.png" alt="Customize Font Size screenshot" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Workspace Library -->
+    <div class="timeline-item">
+      <div class="timeline-node">3</div>
+      <div class="timeline-content">
+        <div class="timeline-step-badge">Step 03</div>
+        <h3 class="timeline-item-title">Workspace Library</h3>
+        <p class="timeline-item-desc">
+          Import your documentation files right into your local library. Upload file formats including DOCX, PDF, TXT, MD, and JSON to render them client-side in card-based grid views. Browse and manage entire folders without sending data to any external server.
+        </p>
+      </div>
+      <div class="timeline-media">
+        <div class="screenshot-frame">
+          <div class="screenshot-header">
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <span class="screen-title" style="font-size: 0.6rem; color: #5c5f73;">Workspace Library</span>
+          </div>
+          <img src="/screenshots/library_step.png" alt="Workspace Library screenshot" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Connection Explorer -->
+    <div class="timeline-item">
+      <div class="timeline-node">4</div>
+      <div class="timeline-content">
+        <div class="timeline-step-badge">Step 04</div>
+        <h3 class="timeline-item-title">Connection Explorer</h3>
+        <p class="timeline-item-desc">
+          Trace structural references through the interactive Citation Map. Click on files to view connected nodes dynamically. The engine draws clear vector paths and generates human-readable sentence summaries tracing how guidelines link and reference each other.
+        </p>
+      </div>
+      <div class="timeline-media">
+        <div class="screenshot-frame">
+          <div class="screenshot-header">
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <span class="screen-title" style="font-size: 0.6rem; color: #5c5f73;">Citation Network Map</span>
+          </div>
+          <img src="/screenshots/map_step.png" alt="Connection Explorer Map screenshot" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Security Audit Log -->
+    <div class="timeline-item">
+      <div class="timeline-node">5</div>
+      <div class="timeline-content">
+        <div class="timeline-step-badge">Step 05</div>
+        <h3 class="timeline-item-title">Security & Integrity Audit</h3>
+        <p class="timeline-item-desc">
+          Validate document authenticity instantly. Run cryptographic integrity scans to compute checksums, flag unverified files, and audit security compliance on a dedicated security panel, storing all actions in a transparent system log.
+        </p>
+      </div>
+      <div class="timeline-media">
+        <div class="screenshot-frame">
+          <div class="screenshot-header">
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <div class="screen-dot"></div>
+            <span class="screen-title" style="font-size: 0.6rem; color: #5c5f73;">Security Audit Logger</span>
+          </div>
+          <img src="/screenshots/audit_step.png" alt="Security Audit Log screenshot" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 WikiTrace Desk. Local-First Workspace Library.
+  </footer>
+
+  <script>
+    // Generate mechanical keyboard key cap nodes dynamically
+    const keyboard = document.getElementById('keyboard-mesh');
+    const totalKeys = 75; // 5 rows * 15 cols roughly
+    for(let i=0; i<totalKeys; i++) {
+      const key = document.createElement('div');
+      key.className = 'key';
+      // Assign random animations delay to RGB lines for realism
+      key.style.setProperty('--delay', `${Math.random() * 2}s`);
+      keyboard.appendChild(key);
+    }
+
+    // LED controller colors trigger
+    function setLEDColor(hex) {
+      document.documentElement.style.setProperty('--led-color', hex);
+      // Create a transparent glow representation
+      const r = parseInt(hex.slice(1,3), 16);
+      const g = parseInt(hex.slice(3,5), 16);
+      const b = parseInt(hex.slice(5,7), 16);
+      document.documentElement.style.setProperty('--led-glow', `rgba(${r}, ${g}, ${b}, 0.5)`);
+    }
+
+    // Power monitor screen trigger
+    function toggleScreen() {
+      const screen = document.getElementById('main-monitor');
+      screen.classList.toggle('power-off');
+    }
+
+    // Terminal typing logs loop
+    const terminalLines = [
+      '$ sh run_indexer.sh',
+      '> Scanning workspace...',
+      '> Found 5 documents.',
+      '> Building reference connections...',
+      '[SUCCESS] Map built.',
+      '> Integrity Check: PASSED.',
+      '$ node verify_files.js',
+      '>> Hashing files...',
+      '>> Done.'
+    ];
+    let lineIdx = 5;
+    const terminal = document.getElementById('terminal-content');
+    setInterval(() => {
+      if (document.getElementById('main-monitor').classList.contains('power-off')) return;
+      
+      const newline = document.createElement('div');
+      newline.textContent = terminalLines[lineIdx % terminalLines.length];
+      if (newline.textContent.includes('SUCCESS') || newline.textContent.includes('PASSED')) {
+        newline.style.color = '#34c759';
+      } else if (newline.textContent.includes('Scan') || newline.textContent.includes('Hash')) {
+        newline.style.color = '#0099cc';
+      }
+      terminal.appendChild(newline);
+      
+      // Limit logs display height
+      if (terminal.children.length > 8) {
+        terminal.removeChild(terminal.firstChild);
+      }
+      lineIdx++;
+    }, 2800);
+  </script>
+</body>
+</html>
