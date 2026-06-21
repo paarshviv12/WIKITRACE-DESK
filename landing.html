@@ -68,6 +68,10 @@
       padding-top: 3.5rem;
       padding-bottom: 0.5rem;
       gap: 0;
+      width: 100%;
+      max-width: 700px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
 
     .hero-owl-logo {
@@ -1354,6 +1358,368 @@
         flex-direction: column;
         text-align: center;
         border-radius: 0;
+      }
+    }
+
+    /* =============================================
+       COMPREHENSIVE MOBILE RESPONSIVE OVERHAUL
+       ============================================= */
+
+    /* ---- Tablet: 768px and below ---- */
+    @media (max-width: 768px) {
+
+      /* Hero identity */
+      .hero-identity {
+        padding-top: 2.5rem;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+
+      .hero-owl-logo {
+        width: 120px;
+        height: 120px;
+      }
+
+      .hero-wordmark {
+        font-size: 2.4rem;
+      }
+
+      .hero-caption {
+        font-size: 0.92rem;
+        padding: 0 1rem;
+      }
+
+      /* Hero container */
+      .hero-container {
+        padding: 0 1.2rem 1.5rem;
+      }
+
+      /* Desk setup: scale down height on tablet */
+      .desk-setup-wrapper {
+        height: 380px;
+        max-width: 100%;
+        border-radius: 16px;
+      }
+
+      /* Monitor: shrink and reposition */
+      .monitor-main {
+        left: 12%;
+        width: 76%;
+        height: 200px;
+        bottom: 115px;
+      }
+
+      .monitor-stand {
+        left: 46%;
+        width: 8%;
+      }
+
+      .monitor-stand-base {
+        left: 38%;
+        width: 24%;
+      }
+
+      /* Terminal */
+      .terminal-panel {
+        width: 140px;
+        height: 110px;
+        bottom: 115px;
+        right: 2%;
+        font-size: 0.45rem;
+      }
+
+      /* Keyboard */
+      .keyboard {
+        width: 55%;
+      }
+
+      /* Coffee / speakers: slightly shrink */
+      .coffee-cup { transform: scale(0.8); right: 2%; }
+      .speaker-left { transform: scale(0.8); }
+      .speaker-right { transform: scale(0.8); }
+
+      /* Timeline */
+      .timeline-container {
+        padding: 3rem 1.2rem;
+      }
+
+      .timeline-header-block {
+        margin-bottom: 3rem;
+      }
+
+      .timeline-title {
+        font-size: 2rem;
+      }
+
+      .timeline-track {
+        left: 16px;
+      }
+
+      .timeline-item {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding-left: 44px;
+      }
+
+      .timeline-item:nth-child(even) {
+        direction: ltr;
+      }
+
+      .timeline-node {
+        left: 16px;
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+      }
+
+      .timeline-content {
+        padding: 1.8rem 1.4rem;
+      }
+
+      .timeline-item-title {
+        font-size: 1.3rem;
+      }
+
+      .screenshot-frame {
+        max-width: 100%;
+      }
+
+      /* Features section */
+      .features-section {
+        padding: 3rem 1.2rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      /* Ribbon: reduce font size */
+      .ribbon__seg {
+        font-size: 0.82rem;
+        letter-spacing: 1px;
+      }
+
+      /* QR drawer */
+      .qr-fixed-panel {
+        max-width: 100%;
+      }
+
+      .qr-card {
+        padding: 1.4rem;
+        gap: 1.2rem;
+      }
+
+      /* Desk controls bar */
+      .desk-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+
+      .control-btn {
+        padding: 8px 12px;
+        font-size: 0.78rem;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 0 1.5rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* ---- Phone: 480px and below ---- */
+    @media (max-width: 480px) {
+
+      /* Body padding bottom for QR tab */
+      body {
+        padding-bottom: 6rem;
+      }
+
+      /* Hero identity */
+      .hero-identity {
+        padding-top: 2rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        width: 100%;
+      }
+
+      .hero-owl-logo {
+        width: 100px;
+        height: 100px;
+      }
+
+      .hero-wordmark {
+        font-size: 2rem;
+        letter-spacing: -0.3px;
+      }
+
+      .hero-caption {
+        font-size: 0.85rem;
+        padding: 0 0.5rem;
+        line-height: 1.5;
+      }
+
+      .nav-btn {
+        padding: 12px 22px;
+        font-size: 0.95rem;
+        border-radius: 14px;
+        width: 100%;
+        justify-content: center;
+      }
+
+      .hero-cta-row {
+        width: 90%;
+      }
+
+      /* Hero container */
+      .hero-container {
+        padding: 0 1rem 1rem;
+      }
+
+      /* Desk: hide on very small screens — too complex to render */
+      .desk-setup-wrapper {
+        display: none;
+      }
+
+      /* Timeline */
+      .timeline-container {
+        padding: 2.5rem 1rem;
+      }
+
+      .timeline-title {
+        font-size: 1.75rem;
+      }
+
+      .timeline-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .timeline-track {
+        left: 14px;
+      }
+
+      .timeline-item {
+        grid-template-columns: 1fr;
+        gap: 1.2rem;
+        padding-left: 38px;
+        margin-bottom: 3rem;
+      }
+
+      .timeline-item:nth-child(even) {
+        direction: ltr;
+      }
+
+      .timeline-node {
+        left: 14px;
+        width: 28px;
+        height: 28px;
+        font-size: 0.8rem;
+      }
+
+      .timeline-content {
+        padding: 1.4rem 1.2rem;
+      }
+
+      .timeline-item-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .timeline-step-badge {
+        font-size: 0.7rem;
+        margin-bottom: 0.7rem;
+      }
+
+      .timeline-item-desc {
+        font-size: 0.88rem;
+        line-height: 1.55;
+      }
+
+      /* Screenshot frame */
+      .screenshot-frame {
+        max-width: 100%;
+        border-width: 3px;
+        border-radius: 12px;
+      }
+
+      /* Features section */
+      .features-section {
+        padding: 2rem 1rem;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+      }
+
+      .feature-card {
+        padding: 1.3rem;
+      }
+
+      /* Ribbons */
+      .ribbon {
+        padding: 10px 0;
+      }
+
+      .ribbon__seg {
+        font-size: 0.72rem;
+        letter-spacing: 0.8px;
+      }
+
+      /* QR Drawer: full-width flat on phone */
+      .qr-fixed-panel {
+        max-width: 100%;
+        left: 0;
+        transform: translateY(100%);
+      }
+
+      .qr-fixed-panel.open {
+        transform: translateY(0);
+      }
+
+      .qr-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.4rem 1rem;
+        gap: 1rem;
+        border-radius: 20px 20px 0 0;
+      }
+
+      .qr-image-wrapper {
+        width: 110px;
+        height: 110px;
+      }
+
+      .qr-text-info h4 {
+        font-size: 1rem;
+      }
+
+      .qr-text-info p {
+        font-size: 0.78rem;
+      }
+
+      /* Desk controls */
+      .desk-controls {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        padding: 0 1rem;
+      }
+
+      .control-btn {
+        padding: 8px 14px;
+        font-size: 0.78rem;
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        padding: 0 1rem;
+        margin-top: 3rem;
+        font-size: 0.78rem;
       }
     }
   </style>
