@@ -105,6 +105,21 @@
       transform: translateY(-2px);
     }
 
+    .nav-btn-yellow {
+      background: rgba(255, 204, 0, 0.1);
+      border: 1.5px solid #ffcc00;
+      color: #ffcc00;
+      box-shadow: 0 4px 15px rgba(255, 204, 0, 0.15);
+    }
+
+    .nav-btn-yellow:hover {
+      background: #ffcc00;
+      color: #0b0c10;
+      border-color: #ffcc00;
+      box-shadow: 0 0 20px rgba(255, 204, 0, 0.5) !important;
+      transform: translateY(-2px);
+    }
+
     /* Main Container */
     .hero-container {
       width: 100%;
@@ -1323,8 +1338,8 @@
       </svg>
       <span>WikiTrace</span>Desk
     </a>
-    <a href="/index.html" class="nav-btn" id="header-enter-btn">
-      Enter Workspace ➔
+    <a href="https://wikitrace-desk.vercel.app/" class="nav-btn nav-btn-yellow" id="header-enter-btn">
+      Get Started ➔
     </a>
   </header>
 
@@ -1820,11 +1835,11 @@
     </div>
     <div class="qr-card">
       <div class="qr-image-wrapper">
-        <img id="qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwikitrace-desk.vercel.app%2F%3Ftab%3Drecent&color=0b0c10&bgcolor=ffffff" alt="Workspace QR Code" />
+        <img id="qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwikitrace-desk.vercel.app%2Flanding.html&color=0b0c10&bgcolor=ffffff" alt="Workspace QR Code" />
       </div>
       <div class="qr-text-info">
-        <h4>Scan to Open Workspace</h4>
-        <p>Scan this QR code with your mobile device to open the WikiTrace Desk workspace directly.</p>
+        <h4>Scan to Open Landing Page</h4>
+        <p>Scan this QR code with your mobile device to open the WikiTrace Desk landing page directly.</p>
       </div>
     </div>
   </div>
