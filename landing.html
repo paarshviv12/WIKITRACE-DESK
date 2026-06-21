@@ -9,11 +9,11 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --font-sans: 'Outfit', sans-serif;
+      --font-sans: 'Bricolage Grotesque', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
       
       /* Colors */
@@ -383,6 +383,10 @@
       align-items: center;
       padding-left: 6px;
       color: #8c8f9f;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: -0.2px;
     }
 
     .ui-item::before {
@@ -1114,6 +1118,60 @@
       }
     }
 
+    /* Marquee Ribbons */
+    .ribbon {
+      position: relative;
+      width: 106vw;
+      margin-left: calc(50% - 53vw);
+      overflow: hidden;
+      background: linear-gradient(180deg, #ffe24d 0%, #ffd000 48%, #f2c200 100%);
+      color: #0b0c10;
+      border-top: 2px solid rgba(0,0,0,0.6);
+      border-bottom: 2px solid rgba(0,0,0,0.6);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.45);
+      padding: 13px 0;
+      z-index: 30;
+      user-select: none;
+    }
+    .ribbon--welcome { margin-top: 0.5rem; margin-bottom: 3rem; transform: rotate(-1.4deg); }
+    .ribbon--mid     { margin: 5rem 0 1rem;  transform: rotate(1.1deg); }
+    .ribbon--footer  { margin: 5rem 0 0;     transform: rotate(-1.1deg); }
+
+    .ribbon__track {
+      display: flex;
+      width: max-content;
+      will-change: transform;
+    }
+    .ribbon--ltr .ribbon__track { animation: ribbon-ltr 30s linear infinite; }
+    .ribbon--rtl .ribbon__track { animation: ribbon-rtl 30s linear infinite; }
+    .ribbon:hover .ribbon__track { animation-play-state: paused; }
+
+    .ribbon__seg {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      font-family: var(--font-sans);
+      font-weight: 800;
+      font-size: 1.02rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: #0b0c10;
+    }
+    .ribbon__seg span { padding: 0 1.1rem; }
+
+    @keyframes ribbon-rtl {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes ribbon-ltr {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ribbon__track { animation: none !important; }
+    }
+
     /* Footer */
     footer {
       margin-top: 6rem;
@@ -1121,79 +1179,75 @@
       color: #5c5f73;
     }
 
-    /* Collapsible QR Drawer styles */
-    .qr-drawer-container {
-      margin-top: 4rem;
+    /* Floating slide-up QR drawer styles */
+    .qr-fixed-panel {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
       width: 100%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 100;
+      max-width: 460px;
+      z-index: 9999;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    .qr-toggle-btn {
-      position: relative;
-      background: var(--panel-bg);
-      border: 1.5px solid var(--border-color);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 0.95rem;
+    .qr-fixed-panel.open {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .qr-floating-tab {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(2px);
+      width: 90px;
+      height: 38px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 10px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .qr-toggle-btn::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E") !important;
-      opacity: 0.8;
-      pointer-events: none;
-      z-index: 10;
-      border-radius: inherit;
-    }
-
-    .qr-toggle-btn:hover {
-      border-color: var(--cyan);
-      box-shadow: 0 8px 30px var(--cyan-glow);
-      transform: translateY(-2px);
-    }
-
-    .qr-toggle-btn .qr-btn-icon {
-      stroke: var(--cyan);
-    }
-
-    .qr-drawer-content {
-      width: 100%;
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      display: flex;
       justify-content: center;
-      margin-top: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 10000;
+      background: transparent;
+      border: none;
+      filter: drop-shadow(0 -4px 8px rgba(0,0,0,0.3));
     }
 
-    .qr-drawer-content.expanded {
-      max-height: 280px;
-      margin-top: 1rem;
+    .qr-floating-tab:hover {
+      transform: translateX(-50%) translateY(-2px);
+    }
+
+    .tab-bg-svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .smiley-icon {
+      position: relative;
+      z-index: 2;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .qr-fixed-panel.open .qr-floating-tab .smiley-icon {
+      transform: rotate(360deg);
     }
 
     .qr-card {
-      background: rgba(22, 24, 35, 0.85);
+      background: rgba(22, 24, 35, 0.95);
       border: 1.5px solid var(--border-color);
-      border-radius: 20px;
-      padding: 1.5rem;
+      border-bottom: none;
+      border-radius: 20px 20px 0 0;
+      padding: 1.8rem;
       display: flex;
       align-items: center;
       gap: 1.5rem;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      box-shadow: 0 -15px 35px rgba(0,0,0,0.5);
       width: 100%;
       position: relative;
     }
@@ -1211,7 +1265,7 @@
 
     .qr-image-wrapper {
       background: white;
-      padding: 10px;
+      padding: 8px;
       border-radius: 12px;
       display: flex;
       align-items: center;
@@ -1219,6 +1273,7 @@
       width: 130px;
       height: 130px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      flex-shrink: 0;
     }
 
     .qr-image-wrapper img {
@@ -1231,7 +1286,7 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .qr-text-info h4 {
@@ -1250,9 +1305,7 @@
       .qr-card {
         flex-direction: column;
         text-align: center;
-      }
-      .qr-drawer-content.expanded {
-        max-height: 400px;
+        border-radius: 0;
       }
     }
   </style>
@@ -1280,6 +1333,22 @@
     <p class="hero-subtitle">
       WikiTrace Desk is an offline-first library platform that structures spec files, audits security logs, and maps reference links interactively.
     </p>
+
+    <!-- Welcome Ribbon (scrolls left -> right) -->
+    <div class="ribbon ribbon--welcome ribbon--ltr" aria-label="Welcome message">
+      <div class="ribbon__track">
+        <div class="ribbon__seg">
+          <span>Welcome to WikiTrace Desk ✦ Step Inside &amp; Explore Your Offline-First Workspace ✦ Take a Look Around the Desk ✦</span>
+          <span>Welcome to WikiTrace Desk ✦ Step Inside &amp; Explore Your Offline-First Workspace ✦ Take a Look Around the Desk ✦</span>
+          <span>Welcome to WikiTrace Desk ✦ Step Inside &amp; Explore Your Offline-First Workspace ✦ Take a Look Around the Desk ✦</span>
+        </div>
+        <div class="ribbon__seg" aria-hidden="true">
+          <span>Welcome to WikiTrace Desk ✦ Step Inside &amp; Explore Your Offline-First Workspace ✦ Take a Look Around the Desk ✦</span>
+          <span>Welcome to WikiTrace Desk ✦ Step Inside &amp; Explore Your Offline-First Workspace ✦ Take a Look Around the Desk ✦</span>
+          <span>Welcome to WikiTrace Desk ✦ Step Inside &amp; Explore Your Offline-First Workspace ✦ Take a Look Around the Desk ✦</span>
+        </div>
+      </div>
+    </div>
 
     <!-- CRAZY DESK SETUP VIEWPORT -->
     <div class="desk-setup-wrapper" id="workspace-viewport">
@@ -1479,6 +1548,20 @@
     </div>
   </div>
 
+  <!-- Features Ribbon (scrolls right -> left) -->
+  <div class="ribbon ribbon--mid ribbon--rtl" aria-label="Workspace features">
+    <div class="ribbon__track">
+      <div class="ribbon__seg">
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
+      </div>
+      <div class="ribbon__seg" aria-hidden="true">
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Setup Walkthrough Timeline Section -->
   <div class="timeline-container">
     <div class="timeline-header-block">
@@ -1604,30 +1687,18 @@
     </div>
   </div>
 
-  <!-- Collapsible QR Code Drawer -->
-  <div class="qr-drawer-container">
-    <button class="qr-toggle-btn" id="qr-toggle-btn" onclick="toggleQRDrawer()">
-      <svg class="qr-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;">
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-        <rect x="7" y="7" width="3" height="3"></rect>
-        <rect x="14" y="7" width="3" height="3"></rect>
-        <rect x="7" y="14" width="3" height="3"></rect>
-        <rect x="14" y="14" width="3" height="3"></rect>
-      </svg>
-      <span style="color: inherit; font-size: inherit; font-weight: inherit;">Show QR Code to Open Workspace</span>
-      <svg class="qr-arrow-icon" id="qr-arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; transition: transform 0.3s;">
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
-    </button>
-    <div class="qr-drawer-content" id="qr-drawer-content">
-      <div class="qr-card">
-        <div class="qr-image-wrapper">
-          <img id="qr-code-img" src="" alt="Workspace QR Code" />
-        </div>
-        <div class="qr-text-info">
-          <h4>Scan to Open Workspace</h4>
-          <p>Scan this QR code with your mobile device to open the WikiTrace Desk workspace directly.</p>
-        </div>
+
+
+  <!-- Features Ribbon (scrolls right -> left) -->
+  <div class="ribbon ribbon--footer ribbon--rtl" aria-label="Workspace features">
+    <div class="ribbon__track">
+      <div class="ribbon__seg">
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
+      </div>
+      <div class="ribbon__seg" aria-hidden="true">
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
+        <span>Offline-First Privacy ✦ SHA-256 Integrity Audits ✦ Interactive Citation Maps ✦ DOCX &amp; PDF Parsing ✦ One-Click Word Export ✦ Zero Cloud, Zero Leakage ✦</span>
       </div>
     </div>
   </div>
@@ -1727,27 +1798,36 @@
 
     // Toggle QR Drawer
     function toggleQRDrawer() {
-      const drawer = document.getElementById('qr-drawer-content');
-      const arrow = document.getElementById('qr-arrow-icon');
-      const btnText = document.querySelector('#qr-toggle-btn span');
-      const qrImg = document.getElementById('qr-code-img');
-
-      const isExpanded = drawer.classList.toggle('expanded');
-      
-      if (isExpanded) {
-        arrow.style.transform = 'rotate(180deg)';
-        btnText.textContent = 'Hide QR Code';
-        
-        // Dynamically request QR code pointing to the main project page
-        if (!qrImg.src) {
-          const workspaceUrl = window.location.origin + "/index.html";
-          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(workspaceUrl)}&color=0b0c10&bgcolor=ffffff`;
-        }
-      } else {
-        arrow.style.transform = 'rotate(0deg)';
-        btnText.textContent = 'Show QR Code to Open Workspace';
-      }
+      const panel = document.getElementById('qr-fixed-panel');
+      panel.classList.toggle('open');
     }
   </script>
+
+  <!-- Fixed Slide-Up QR Drawer (Sticks to bottom edge) -->
+  <div class="qr-fixed-panel" id="qr-fixed-panel">
+    <div class="qr-floating-tab" id="qr-floating-tab" onclick="toggleQRDrawer()" title="Toggle QR Code">
+      <!-- Trapezoid Background SVG with rounded top corners -->
+      <svg class="tab-bg-svg" viewBox="0 0 90 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 0 38 L 18 6 Q 20 0 26 0 L 64 0 Q 70 0 72 6 L 90 38 Z" fill="#000000" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.5" />
+      </svg>
+      <!-- Smiley Face SVG -->
+      <svg class="smiley-icon" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+        <line x1="9" y1="9" x2="9.01" y2="9"></line>
+        <line x1="15" y1="9" x2="15.01" y2="9"></line>
+      </svg>
+    </div>
+    <div class="qr-card">
+      <div class="qr-image-wrapper">
+        <img id="qr-code-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https%3A%2F%2Fwikitrace-desk.vercel.app%2F%3Ftab%3Drecent&color=0b0c10&bgcolor=ffffff" alt="Workspace QR Code" />
+      </div>
+      <div class="qr-text-info">
+        <h4>Scan to Open Workspace</h4>
+        <p>Scan this QR code with your mobile device to open the WikiTrace Desk workspace directly.</p>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
