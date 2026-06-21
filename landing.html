@@ -144,17 +144,36 @@
       width: 100%;
       max-width: 900px;
       height: 520px;
-      background: rgba(30, 32, 44, 0.3);
+      background:
+        radial-gradient(120% 90% at 50% 0%, rgba(0,153,204,0.06), transparent 60%),
+        linear-gradient(180deg, rgba(30, 32, 44, 0.45), rgba(12,13,18,0.55));
       border: 1.5px solid var(--border-color);
       border-radius: 24px;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.04);
       margin-bottom: 4rem;
       display: flex;
       justify-content: center;
       align-items: flex-end;
       padding-bottom: 20px;
       overflow: hidden;
+      /* 3D scene */
+      perspective: 1500px;
+      perspective-origin: 50% 38%;
     }
+
+    /* 3D stage that tilts with the cursor (true depth) */
+    .desk-stage {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transform:
+        rotateX(calc(5deg + var(--tilt-x, 0deg)))
+        rotateY(var(--tilt-y, 0deg))
+        translateZ(0);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: transform;
+    }
+    .desk-stage > * { transform-style: preserve-3d; }
 
     /* Ambient Pulsing LED Backlight */
     .led-backlight {
@@ -176,8 +195,11 @@
       left: 0;
       right: 0;
       height: 110px;
-      background: linear-gradient(to bottom, #14151a 0%, #0d0e12 100%);
-      border-top: 4px solid #23252f;
+      background:
+        radial-gradient(140% 120% at 50% -10%, rgba(255,255,255,0.05), transparent 45%),
+        linear-gradient(to bottom, #1b1d24 0%, #131419 35%, #0a0b0e 100%);
+      border-top: 1px solid #2c2f3a;
+      box-shadow: inset 0 2px 6px rgba(255,255,255,0.04), 0 -12px 24px rgba(0,0,0,0.4);
       z-index: 5;
     }
 
@@ -217,15 +239,58 @@
       width: 60%;
       height: 250px;
       background: #16171d;
-      border: 6px solid #2a2c35;
-      border-radius: 16px;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      border-radius: 18px;
+      padding: 7px;
+      /* layered bezel: outer dark -> machined edge -> inner lip + drop & contact shadow */
+      background-image:
+        linear-gradient(160deg, #3a3d49 0%, #23252e 18%, #16171d 40%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.10),
+        inset 0 0 0 1px rgba(0,0,0,0.6),
+        0 2px 2px rgba(0,0,0,0.5),
+        0 26px 40px rgba(0,0,0,0.55),
+        0 45px 50px -20px rgba(0,0,0,0.7);
       z-index: 10;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
+      transform: translateZ(40px);
       transition: transform 0.3s ease, opacity 0.5s ease;
     }
+
+    /* glossy glass glare sweeping across the panel */
+    .monitor-main::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 11px;
+      background: linear-gradient(125deg,
+        rgba(255,255,255,0.10) 0%,
+        rgba(255,255,255,0.03) 18%,
+        transparent 38%,
+        transparent 100%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    /* soft contact shadow cast on the desk underneath */
+    .monitor-main::after {
+      content: "";
+      position: absolute;
+      left: 6%;
+      right: 6%;
+      bottom: -118px;
+      height: 60px;
+      background: radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0.55), transparent 72%);
+      filter: blur(6px);
+      transform: rotateX(72deg);
+      transform-origin: top center;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .monitor-main > .screen-header { border-radius: 11px 11px 0 0; }
+    .monitor-main > .screen-content { border-radius: 0 0 11px 11px; }
 
     .monitor-main.power-off {
       opacity: 0.15;
@@ -293,7 +358,8 @@
       grid-template-columns: 1fr 1.2fr;
       gap: 10px;
       background-color: #0b0c10;
-      background-image: 
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.03);
+      background-image:
         radial-gradient(at 10% 20%, rgba(0, 153, 204, 0.04) 0px, transparent 50%),
         url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
     }
@@ -405,15 +471,22 @@
       right: 5%;
       width: 11%;
       height: 250px;
-      background: #16171d;
-      border: 5px solid #2a2c35;
-      border-radius: 12px;
-      box-shadow: -10px 15px 30px rgba(0,0,0,0.5);
+      background: linear-gradient(150deg, #383b47 0%, #23252e 20%, #16171d 45%);
+      padding: 5px;
+      border-radius: 13px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        inset 0 0 0 1px rgba(0,0,0,0.6),
+        -12px 18px 32px rgba(0,0,0,0.55);
       z-index: 12;
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      transform: rotateY(-16deg) translateZ(20px);
+      transform-origin: right center;
     }
+    .monitor-side > .screen-header { border-radius: 8px 8px 0 0; }
+    .monitor-side > .screen-terminal { border-radius: 0 0 8px 8px; }
 
     .screen-terminal {
       flex: 1;
@@ -435,9 +508,10 @@
       bottom: 110px;
       width: 35px;
       height: 70px;
-      background: #1e2029;
-      border: 2px solid #2a2c35;
-      border-radius: 4px;
+      background: linear-gradient(105deg, #2b2e3a 0%, #1a1c24 55%, #101117 100%);
+      border: 1px solid #0e0f14;
+      border-radius: 5px;
+      transform: translateZ(24px);
       z-index: 8;
       display: flex;
       flex-direction: column;
@@ -478,25 +552,32 @@
     /* Mechanical Keyboard */
     .keyboard {
       position: absolute;
-      bottom: 22px;
+      bottom: 14px;
       left: 28%;
       width: 44%;
-      height: 38px;
-      background: #252833;
-      border-radius: 6px;
-      border: 1.5px solid #14151a;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+      height: 52px;
+      background: linear-gradient(180deg, #2c2f3b 0%, #1c1e26 100%);
+      border-radius: 7px;
+      border: 1px solid #0e0f13;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.07),
+        0 12px 22px rgba(0,0,0,0.7);
       z-index: 15;
       display: grid;
       grid-template-columns: repeat(15, 1fr);
-      gap: 1.5px;
-      padding: 3px;
+      gap: 2px;
+      padding: 5px;
+      /* lay flat on the desk plane */
+      transform: rotateX(64deg) translateZ(6px);
+      transform-origin: bottom center;
     }
 
     .key {
-      background: #14151a;
-      border-radius: 2px;
-      box-shadow: 0 1px 0 rgba(255,255,255,0.05);
+      background: linear-gradient(180deg, #2a2d38 0%, #16181f 60%, #0e0f14 100%);
+      border-radius: 2px 2px 3px 3px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.08),
+        0 2px 2px rgba(0,0,0,0.6);
       cursor: pointer;
       position: relative;
     }
@@ -523,15 +604,19 @@
     /* Gaming mouse */
     .mouse {
       position: absolute;
-      bottom: 30px;
+      bottom: 26px;
       left: 76%;
-      width: 18px;
-      height: 28px;
-      background: #252833;
-      border-radius: 9px;
-      border: 1px solid #14151a;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.8);
+      width: 20px;
+      height: 32px;
+      background: radial-gradient(120% 80% at 50% 22%, #34384a 0%, #20222c 45%, #121319 100%);
+      border-radius: 11px 11px 10px 10px;
+      border: 1px solid #0e0f13;
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,0.10),
+        0 8px 12px rgba(0,0,0,0.7);
       z-index: 15;
+      transform: rotateX(64deg) translateZ(6px);
+      transform-origin: bottom center;
     }
 
     .mouse-wheel {
@@ -552,10 +637,26 @@
       left: 8%;
       width: 24px;
       height: 26px;
-      background: #e0f2fe;
-      border-radius: 0 0 8px 8px;
+      background: linear-gradient(100deg, #ffffff 0%, #d4e9f7 45%, #a9c6da 100%);
+      border-radius: 3px 3px 9px 9px;
       z-index: 12;
-      box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+      transform: translateZ(18px);
+      box-shadow:
+        inset 0 -4px 6px rgba(0,0,0,0.12),
+        inset 2px 0 3px rgba(255,255,255,0.6),
+        0 8px 12px rgba(0,0,0,0.55);
+    }
+    /* coffee surface ellipse at the rim */
+    .coffee-mug::before {
+      content: "";
+      position: absolute;
+      top: -3px;
+      left: 2px;
+      right: 2px;
+      height: 6px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 40%, #5b3a26 0%, #3a2417 80%);
+      box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
     }
 
     .coffee-handle {
@@ -1047,7 +1148,8 @@
 
     <!-- CRAZY DESK SETUP VIEWPORT -->
     <div class="desk-setup-wrapper" id="workspace-viewport">
-      
+     <div class="desk-stage" id="desk-stage">
+
       <!-- Back LED Strip Glow -->
       <div class="led-backlight" id="desk-glow"></div>
 
@@ -1170,6 +1272,7 @@
         <button class="control-btn power" onclick="toggleScreen()" title="Power Monitor"></button>
       </div>
 
+     </div>
     </div>
   </div>
 
@@ -1381,6 +1484,34 @@
       key.style.setProperty('--delay', `${Math.random() * 2}s`);
       keyboard.appendChild(key);
     }
+
+    // Cursor-driven 3D parallax — tilt the whole desk scene toward the pointer
+    (function () {
+      const viewport = document.getElementById('workspace-viewport');
+      const stage = document.getElementById('desk-stage');
+      if (!viewport || !stage) return;
+      let raf = null, tx = 0, ty = 0;
+
+      function apply() {
+        stage.style.setProperty('--tilt-x', tx.toFixed(2) + 'deg');
+        stage.style.setProperty('--tilt-y', ty.toFixed(2) + 'deg');
+        raf = null;
+      }
+      viewport.addEventListener('pointermove', (e) => {
+        const r = viewport.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;   // -0.5 .. 0.5
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        ty = px * 16;          // look left/right
+        tx = -py * 9;          // look up/down (combines with base 5deg)
+        stage.style.transition = 'transform 0.12s ease-out';
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      viewport.addEventListener('pointerleave', () => {
+        tx = 0; ty = 0;
+        stage.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+    })();
 
     // LED controller colors trigger
     function setLEDColor(hex) {
