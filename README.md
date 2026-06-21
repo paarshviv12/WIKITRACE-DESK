@@ -98,26 +98,55 @@ The compiled, ready-to-host multi-page files (`index.html`, `landing.html`, CSS,
 
 ---
 
-## 2.8 Screenshots
-Execution steps and onboarding screens can be referenced inside the repository:
+## 2.8 Screenshots & Demo
 
-1. **Profile Sign In:** `public/screenshots/login_step.png`
-2. **Typography Scaler:** `public/screenshots/font_step.png`
-3. **Workspace Library:** `public/screenshots/library_step.png`
-4. **Citation Map Explorer:** `public/screenshots/map_step.png`
-5. **Security Audit Logger:** `public/screenshots/audit_step.png`
+### 🏠 Homepage / Landing Page
+
+![WikiTrace Desk Landing Page](public/screenshots/HomePage.gif)
 
 ---
 
-## 2.9 Results and Observations
-* **Zero Cloud Exposure:** Network inspections confirmed that file uploads triggered exactly 0 backend API calls. Text rendering and mapping are strictly local.
-* **Immediate Processing:** Text files under 10MB parsed in under **100ms** on ordinary hardware, eliminating typical upload latency bottlenecks.
-* **Intuitive Path Tracing:** New user surveys confirmed that rendering references as a sentence trail reduced compliance path confusion significantly compared to raw directories.
+### 📖 Setup & Usage Walkthrough
+
+**Step 1 — Profile Sign In**
+> Enter your username to personalize your offline profile and stamp your developer signature across audits and exports.
+
+![Profile Sign In](public/screenshots/login.gif)
 
 ---
 
-## 2.10 Conclusion
-WikiTrace Desk provides a highly performant, secure, offline-first application for audit verification. By shifting all parsing, cryptography, and network path tracing directly onto the client side, it guarantees absolute privacy, removes server operational overhead, and yields an intuitive, visually stunning experience for compliance audits.
+**Step 2 — Tailor Typography Scale**
+> Adjust character sizing system-wide on the fly to ensure complex guidelines and trace tables fit your display perfectly.
+
+![Typography Scale](public/screenshots/fontsize.gif)
+
+---
+
+**Step 3 — Workspace Library**
+> Drag and drop DOCX, PDF, TXT, MD, and JSON files directly into your local library — rendered client-side in card-based grid views with zero cloud upload.
+
+![Workspace Library Upload](public/screenshots/Upload.gif)
+
+---
+
+**Step 4 — Connection Explorer (Citation Map)**
+> Click any document to trace its structural references through an interactive citation graph. Vector paths draw in real time.
+
+![Citation Map Explorer](public/screenshots/Citation.gif)
+
+---
+
+**Step 5 — Security & Integrity Audit**
+> Run SHA-256 cryptographic integrity scans, flag unverified files, and log all actions in a transparent session audit panel.
+
+![Security Audit Logger](public/screenshots/security.gif)
+
+---
+
+## Live Demo
+
+🚀 **[Open Landing Page](https://wikitrace-desk.vercel.app/landing.html)**
+⚡ **[Open Workspace](https://wikitrace-desk.vercel.app/)**
 
 ---
 
